@@ -767,6 +767,11 @@ def acos_asin(z, prec, rnd, n):
     return re, im
 
 def mpc_acos(z, prec, rnd=round_down):
+    a, b = z
+    if a == fzero and b == fnan:
+        return mpf_shift(mpf_pi(prec, rnd), -1), fnan
+    if a == fnan and b not in _infs:
+        return fnan, fnan
     return acos_asin(z, prec, rnd, 0)
 
 def mpc_asin(z, prec, rnd=round_down):

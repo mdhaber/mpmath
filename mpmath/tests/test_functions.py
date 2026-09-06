@@ -464,6 +464,16 @@ def test_acos():
     assert acos(mpc(+2, 0)).ae(mpc(0, log(2 + sqrt(3))))
     assert acos(mpc(0.5, 0)).ae(pi/3)
 
+    # Special cases:
+    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.acos.html
+    # "If a is either +0 or -0 and b is NaN": pi/2 + NaN j.
+    r = acos(mpc(0, nan))
+    assert r.real.ae(pi/2) and isnan(r.imag)
+
+    # "If a is NaN and b is a finite number": NaN + NaN j.
+    r = acos(mpc(nan, 0))
+    assert isnan(r.real) and isnan(r.imag)
+
 def test_atan():
     assert atan(-2.3).ae(math.atan(-2.3))
     assert atan(1e-50) == 1e-50
