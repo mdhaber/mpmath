@@ -435,26 +435,17 @@ def test_asin():
 
 def test_acos():
     pi4 = pi/4
-    assert acos(mpc(+inf, +inf)) == mpc(+pi4, -inf)
     assert acos(mpc(+inf, -inf)) == mpc(+pi4, +inf)
-    assert acos(mpc(-inf, +inf)) == mpc(pi4*3, -inf)
     assert acos(mpc(-inf, -inf)) == mpc(pi4*3, +inf)
-    r = acos(mpc(+inf, nan))
-    assert isnan(r.real) and r.imag == inf
     r = acos(mpc(-inf, nan))
     assert isnan(r.real) and r.imag == inf
-    r = acos(mpc(nan, +inf))
-    assert isnan(r.real) and r.imag == -inf
     r = acos(mpc(nan, -inf))
     assert isnan(r.real) and r.imag == +inf
     pi2 = pi/2
-    assert acos(mpc(+inf, +1)) == mpc(0.0, -inf)
     assert acos(mpc(+inf, -1)) == mpc(0.0, +inf)
     assert acos(mpc(+inf, 0)) == mpc(0.0, +inf)
-    assert acos(mpc(-inf, +1)) == mpc(pi, -inf)
     assert acos(mpc(-inf, -1)) == mpc(pi, +inf)
     assert acos(mpc(-inf, 0)) == mpc(pi, -inf)
-    assert acos(mpc(+1, +inf)) == mpc(pi2, -inf)
     assert acos(mpc(-1, +inf)) == mpc(pi2, -inf)
     assert acos(mpc(0, +inf)) == mpc(pi2, -inf)
     assert acos(mpc(+1, -inf)) == mpc(pi2, +inf)
@@ -466,12 +457,29 @@ def test_acos():
 
     # Special cases:
     # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.acos.html
-    # "If a is either +0 or -0 and b is NaN": pi/2 + NaN j.
+    # Real-valued cases
+    assert isnan(acos(mpf(nan)))
+    # Real inputs outside [-1, 1] are omitted because mpmath returns complex
+    # analytic continuations instead of NaN.
+    assert acos(mpf(1)).ae(0)
+    # Complex-valued cases
+    assert acos(mpc(0, 0)).ae(mpc(pi2, 0))
     r = acos(mpc(0, nan))
-    assert r.real.ae(pi/2) and isnan(r.imag)
-
-    # "If a is NaN and b is a finite number": NaN + NaN j.
+    assert r.real.ae(pi2) and isnan(r.imag)
+    assert acos(mpc(1, inf)).ae(mpc(pi2, -inf))
+    r = acos(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert acos(mpc(-inf, 1)).ae(mpc(pi, -inf))
+    assert acos(mpc(inf, 1)).ae(mpc(0, -inf))
+    assert acos(mpc(-inf, inf)).ae(mpc(3*pi4, -inf))
+    assert acos(mpc(inf, inf)).ae(mpc(pi4, -inf))
+    r = acos(mpc(inf, nan))
+    assert isnan(r.real) and abs(r.imag) == inf
     r = acos(mpc(nan, 0))
+    assert isnan(r.real) and isnan(r.imag)
+    r = acos(mpc(nan, inf))
+    assert isnan(r.real) and r.imag == -inf
+    r = acos(mpc(nan, nan))
     assert isnan(r.real) and isnan(r.imag)
 
 def test_atan():

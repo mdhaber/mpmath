@@ -621,6 +621,8 @@ def acos_asin(z, prec, rnd, n):
     and by abs(a) <= 1, in order to improve the numerical accuracy.
     """
     a, b = z
+    if a == fnan and b not in _infs:
+        return fnan, fnan
     wp = prec + 10
     # special cases with real argument
     if b == fzero:
@@ -770,8 +772,6 @@ def mpc_acos(z, prec, rnd=round_down):
     a, b = z
     if a == fzero and b == fnan:
         return mpf_shift(mpf_pi(prec, rnd), -1), fnan
-    if a == fnan and b not in _infs:
-        return fnan, fnan
     return acos_asin(z, prec, rnd, 0)
 
 def mpc_asin(z, prec, rnd=round_down):
