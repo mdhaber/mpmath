@@ -128,6 +128,16 @@ def test_pow():
     assert mpc(1, -inf)**3 == mpc(-inf, inf)
     assert mpc(1, -inf)**4 == mpc(inf, inf)
 
+    # Special cases:
+    # https://en.cppreference.com/c/numeric/math/pow
+    assert isnan(2 ** nan)
+    assert 1 ** nan == 1
+    assert 2 ** inf == inf
+    assert 2 ** -inf == 0
+    assert 1 ** -inf == 1
+    assert 0.5 ** inf == 0
+    assert 0.5 ** -inf == inf
+    assert 0 ** mpf(1) == 0
 
 def test_mixed_misc():
     assert 1 + mpf(3) == mpf(3) + 1 == 4
