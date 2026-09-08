@@ -436,6 +436,7 @@ def test_asin():
     # Special cases:
     # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.asin.html
     assert isnan(asin(mpf(nan)))
+    assert asin(mpf(0)) == 0
     assert asin(mpc(0, 0)) == 0
     r = asin(mpc(nan, 0))
     assert isnan(r.real) and isnan(r.imag)
@@ -499,6 +500,8 @@ def test_asinh():
     # Special cases:
     # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.asinh.html
     assert isnan(asinh(mpf(nan)))
+    assert asinh(mpf(0)) == 0
+    assert asinh(mpf(inf)) == inf
     assert asinh(mpf(-inf)) == -inf
     assert asinh(mpc(0, 0)) == 0
     assert asinh(mpc(1, inf)).ae(mpc(inf, pi2))
@@ -524,6 +527,7 @@ def test_acosh():
     # Special cases:
     # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.acosh.html
     assert isnan(acosh(mpf(nan)))
+    assert acosh(mpf(1)) == 0
     assert acosh(mpf(inf)) == inf
     assert acosh(mpc(0, 0)).ae(mpc(0, pi2))
     assert acosh(mpc(0, inf)).ae(mpc(inf, pi2))
