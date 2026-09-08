@@ -630,7 +630,7 @@ def acos_asin(z, prec, rnd, n):
             if n == 0:
                 return mpf_acos(a, prec, rnd), fzero if a != fnan else a
             else:
-                return mpf_asin(a, prec, rnd), fzero
+                return mpf_asin(a, prec, rnd), fzero if a != fnan else a
         # cases abs(a) > 1
         else:
             # case a < -1
@@ -740,7 +740,7 @@ def acos_asin(z, prec, rnd, n):
     if im[3] >= 0:
         im = normalize(im[0], im[1], im[2], im[3], prec, rnd)
     # Correct real part for infinities and nan in imaginary component
-    if re == fnan and (z == (fzero, fnan) or mpc_is_inf(z)):
+    if re == fnan and (mpc_is_inf(z) or z == (fzero, fnan)):
         a, b = z
         if a == fzero:
             re = mpf_shift(mpf_pi(prec, rnd), -1) if n == 0 else fzero

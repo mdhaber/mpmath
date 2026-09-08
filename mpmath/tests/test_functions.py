@@ -438,7 +438,7 @@ def test_asin():
     assert isnan(asin(mpf(nan)))
     assert asin(mpc(0, 0)) == 0
     r = asin(mpc(nan, 0))
-    assert isnan(r.real) and r.imag == 0
+    assert isnan(r.real) and isnan(r.imag)
     assert asin(mpc(1, -inf)) == mpc(0, -inf)
     r = asin(mpc(0, nan))
     assert r.real == 0 and isnan(r.imag)
@@ -490,6 +490,63 @@ def test_acos():
     r = acos(mpc(nan, 0))
     assert isnan(r.real) and isnan(r.imag)
     r = acos(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
+
+def test_asinh():
+    pi2 = pi/2
+    pi4 = pi/4
+
+    # Special cases:
+    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.asinh.html
+    assert isnan(asinh(mpf(nan)))
+    assert asinh(mpf(-inf)) == -inf
+    assert asinh(mpc(0, 0)) == 0
+    assert asinh(mpc(1, inf)).ae(mpc(inf, pi2))
+    r = asinh(mpc(0, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    r = asinh(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert asinh(mpc(inf, 1)) == mpc(inf, 0)
+    assert asinh(mpc(inf, inf)).ae(mpc(inf, pi4))
+    r = asinh(mpc(nan, 0))
+    assert isnan(r.real) and r.imag == 0
+    r = asinh(mpc(nan, 1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = asinh(mpc(nan, inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = asinh(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
+
+def test_acosh():
+    pi2 = pi/2
+    pi4 = pi/4
+
+    # Special cases:
+    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.acosh.html
+    assert isnan(acosh(mpf(nan)))
+    assert acosh(mpf(inf)) == inf
+    assert acosh(mpc(0, 0)).ae(mpc(0, pi2))
+    assert acosh(mpc(0, inf)).ae(mpc(inf, pi2))
+    assert acosh(mpc(1, inf)).ae(mpc(inf, pi2))
+    r = acosh(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    r = acosh(mpc(0, nan))
+    assert isnan(r.real) and abs(r.imag).ae(pi2)
+    assert acosh(mpc(-inf, 1)).ae(mpc(inf, pi))
+    assert acosh(mpc(inf, 1)) == mpc(inf, 0)
+    assert acosh(mpc(-inf, inf)).ae(mpc(inf, 3*pi4))
+    assert acosh(mpc(inf, inf)).ae(mpc(inf, pi4))
+    r = acosh(mpc(-inf, nan))
+    assert r.real == inf and isnan(r.imag)
+    r = acosh(mpc(inf, nan))
+    assert r.real == inf and isnan(r.imag)
+    r = acosh(mpc(nan, 0))
+    assert isnan(r.real) and isnan(r.imag)
+    r = acosh(mpc(nan, 1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = acosh(mpc(nan, inf))
+    assert r.real == inf and isnan(r.imag)
+    r = acosh(mpc(nan, nan))
     assert isnan(r.real) and isnan(r.imag)
 
 def test_atan():
