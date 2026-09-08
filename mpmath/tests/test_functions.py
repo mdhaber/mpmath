@@ -433,6 +433,20 @@ def test_asin():
     assert asin(mpc(0, 1e-220)).ae(1e-220j)
     mp.prec = 53
 
+    # Special cases:
+    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.asin.html
+    assert isnan(asin(mpf(nan)))
+    assert asin(mpc(0, 0)) == 0
+    r = asin(mpc(nan, 0))
+    assert isnan(r.real) and r.imag == 0
+    assert asin(mpc(1, -inf)) == mpc(0, -inf)
+    r = asin(mpc(0, nan))
+    assert r.real == 0 and isnan(r.imag)
+    r = asin(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    r = asin(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
+
 def test_acos():
     pi4 = pi/4
     assert acos(mpc(+inf, +inf)) == mpc(+pi4, -inf)
