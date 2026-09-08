@@ -621,8 +621,11 @@ def acos_asin(z, prec, rnd, n):
     and by abs(a) <= 1, in order to improve the numerical accuracy.
     """
     a, b = z
-    if a == fnan and b not in _infs:
-        return fnan, fnan
+    if a == fzero and b == fnan:
+        if n == 0:
+            return mpf_shift(mpf_pi(prec, rnd), -1), fnan
+        else:
+            return fzero, fnan
     wp = prec + 10
     # special cases with real argument
     if b == fzero:
@@ -630,7 +633,7 @@ def acos_asin(z, prec, rnd, n):
         # case abs(a) <= 1
         if not am[0]:
             if n == 0:
-                return mpf_acos(a, prec, rnd), fzero
+                return mpf_acos(a, prec, rnd), fzero if a != fnan else a
             else:
                 return mpf_asin(a, prec, rnd), fzero
         # cases abs(a) > 1
@@ -769,9 +772,6 @@ def acos_asin(z, prec, rnd, n):
     return re, im
 
 def mpc_acos(z, prec, rnd=round_down):
-    a, b = z
-    if a == fzero and b == fnan:
-        return mpf_shift(mpf_pi(prec, rnd), -1), fnan
     return acos_asin(z, prec, rnd, 0)
 
 def mpc_asin(z, prec, rnd=round_down):
