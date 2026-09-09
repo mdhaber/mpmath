@@ -5,12 +5,12 @@ Low-level functions for complex arithmetic.
 import sys
 
 from .backend import MPZ
-from .libelefun import (mpf_acos, mpf_acosh, mpf_asin, mpf_atan, mpf_atan2,
-                        mpf_cos, mpf_cos_pi, mpf_cos_sin, mpf_cos_sin_pi,
-                        mpf_cosh, mpf_cosh_sinh, mpf_exp, mpf_fibonacci,
-                        mpf_ln, mpf_log1p, mpf_log_hypot, mpf_nthroot, mpf_phi,
-                        mpf_pi, mpf_pow_int, mpf_sin, mpf_sin_pi, mpf_sinh,
-                        mpf_tan, mpf_tanh)
+from .libelefun import (mpf_acos, mpf_acosh, mpf_asin, mpf_asinh, mpf_atan,
+                        mpf_atan2, mpf_cos, mpf_cos_pi, mpf_cos_sin,
+                        mpf_cos_sin_pi, mpf_cosh, mpf_cosh_sinh, mpf_exp,
+                        mpf_fibonacci, mpf_ln, mpf_log1p, mpf_log_hypot,
+                        mpf_nthroot, mpf_phi, mpf_pi, mpf_pow_int, mpf_sin,
+                        mpf_sin_pi, mpf_sinh, mpf_tan, mpf_tanh)
 from .libintmath import giant_steps, lshift, rshift
 from .libmpf import (ComplexResult, fhalf, finf, fnan, fninf, fnone, fone,
                      from_float, from_int, from_man_exp, ftwo, fzero, mpf_abs,
@@ -649,6 +649,12 @@ def acos_asin(z, prec, rnd, n):
                 else:
                     pi = mpf_pi(prec, rnd)
                     return mpf_shift(pi, -1), mpf_neg(c)
+    # special cases with pure imaginary argument
+    if a == fzero:
+        c = mpf_asinh(b, prec, rnd)
+        if n == 0:
+            return mpf_shift(mpf_pi(prec, rnd), -1), mpf_neg(c)
+        return fzero, c
     asign = bsign = 0
     if a[0]:
         a = mpf_neg(a)
@@ -740,11 +746,9 @@ def acos_asin(z, prec, rnd, n):
     if im[3] >= 0:
         im = normalize(im[0], im[1], im[2], im[3], prec, rnd)
     # Correct real part for infinities and nan in imaginary component
-    if re == fnan and (mpc_is_inf(z) or z == (fzero, fnan)):
+    if re == fnan and mpc_is_inf(z):
         a, b = z
-        if a == fzero:
-            re = mpf_shift(mpf_pi(prec, rnd), -1) if n == 0 else fzero
-        elif a in (finf, fninf):
+        if a in (finf, fninf):
             if b in (finf, fninf):
                 re = mpf_shift(mpf_pi(prec, rnd), -2)
                 if a == fninf:

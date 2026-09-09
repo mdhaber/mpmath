@@ -434,10 +434,11 @@ def test_asin():
     mp.prec = 53
 
     # Special cases:
-    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.asin.html
-    assert isnan(asin(mpf(nan)))
-    assert asin(mpf(0)) == 0
-    assert asin(mpc(0, 0)) == 0
+    # https://en.cppreference.com/c/numeric/math/asin
+    assert isnan(asin(nan))
+    assert asin(0) == 0
+    # https://en.cppreference.com/c/numeric/complex/casin
+    assert asin(0j) == 0
     r = asin(mpc(nan, 0))
     assert isnan(r.real) and isnan(r.imag)
     assert asin(mpc(1, -inf)) == mpc(0, -inf)
@@ -480,10 +481,11 @@ def test_acos():
     assert acos(mpc(0.5, 0)).ae(pi/3)
 
     # Special cases:
-    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.acos.html
-    assert isnan(acos(mpf(nan)))
-    assert acos(mpf(1)).ae(0)
-    assert acos(mpc(0, 0)).ae(mpc(pi2, 0))
+    # https://en.cppreference.com/c/numeric/math/acos
+    assert isnan(acos(nan))
+    assert acos(1) == 0
+    # https://en.cppreference.com/c/numeric/complex/cacos
+    assert acos(0j).ae(mpc(pi2, 0))
     r = acos(mpc(0, nan))
     assert r.real.ae(pi2) and isnan(r.imag)
     r = acos(mpc(1, nan))
@@ -498,12 +500,13 @@ def test_asinh():
     pi4 = pi/4
 
     # Special cases:
-    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.asinh.html
-    assert isnan(asinh(mpf(nan)))
-    assert asinh(mpf(0)) == 0
-    assert asinh(mpf(inf)) == inf
-    assert asinh(mpf(-inf)) == -inf
-    assert asinh(mpc(0, 0)) == 0
+    # https://en.cppreference.com/c/numeric/math/asinh
+    assert isnan(asinh(nan))
+    assert asinh(0) == 0
+    assert asinh(inf) == inf
+    assert asinh(-inf) == -inf
+    # https://en.cppreference.com/c/numeric/complex/casinh
+    assert asinh(0j) == 0
     assert asinh(mpc(1, inf)).ae(mpc(inf, pi2))
     r = asinh(mpc(0, nan))
     assert isnan(r.real) and isnan(r.imag)
@@ -525,11 +528,12 @@ def test_acosh():
     pi4 = pi/4
 
     # Special cases:
-    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.acosh.html
-    assert isnan(acosh(mpf(nan)))
-    assert acosh(mpf(1)) == 0
-    assert acosh(mpf(inf)) == inf
-    assert acosh(mpc(0, 0)).ae(mpc(0, pi2))
+    # https://en.cppreference.com/c/numeric/math/acosh
+    assert isnan(acosh(nan))
+    assert acosh(1) == 0
+    assert acosh(inf) == inf
+    # https://en.cppreference.com/c/numeric/complex/cacosh
+    assert acosh(0j).ae(mpc(0, pi2))
     assert acosh(mpc(0, inf)).ae(mpc(inf, pi2))
     assert acosh(mpc(1, inf)).ae(mpc(inf, pi2))
     r = acosh(mpc(1, nan))
