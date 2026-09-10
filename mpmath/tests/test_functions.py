@@ -313,7 +313,12 @@ def test_log():
     # Huge
     assert log(ldexp(1.234,10**20)).ae(log(2)*1e20)
     assert log(ldexp(1.234,10**200)).ae(log(2)*1e200)
-    # Some special values
+
+    # Real special cases:
+    # https://en.cppreference.com/c/numeric/math/log
+    assert log(0) == -inf
+    # Complex special cases:
+    # https://en.cppreference.com/c/numeric/complex/clog
     assert log(mpc(0,0)) == mpc(-inf,0)
     assert isnan(log(mpc(nan,0)).real)
     assert isnan(log(mpc(nan,0)).imag)
@@ -330,6 +335,17 @@ def test_log():
     assert log(mpc(-inf, +inf)) == log1p(mpc(-inf, +inf)) == mpc(inf, +3*pi/4)
     assert log(mpc(-inf, -inf)) == log1p(mpc(-inf, -inf)) == mpc(inf, -3*pi/4)
 
+    assert log(mpc(1, inf)) == mpc(inf, pi/2)
+    assert log(mpc(-inf, 1)) == mpc(inf, pi)
+    assert log(mpc(inf, 1)) == mpc(inf, 0)
+    r = log(mpc(-inf, nan))
+    assert r.real == inf and isnan(r.imag)
+    r = log(mpc(inf, nan))
+    assert r.real == inf and isnan(r.imag)
+    r = log(mpc(nan, inf))
+    assert r.real == inf and isnan(r.imag)
+    r = log(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
 
 def test_trig_hyperb_basic():
     for x in (list(range(100)) + list(range(-100,0))):
@@ -1190,6 +1206,29 @@ def test_log1p():
     assert type(r) is not type(r.real)
     r = mp.log1p(1e-30 + 0j)
     assert type(r) is not type(r.real)
+
+    # Real special cases:
+    # https://en.cppreference.com/c/numeric/math/log1p
+    assert isnan(log1p(nan))
+    assert log1p(-1) == -inf
+    # Complex special cases:
+    # https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.log1p.html
+    assert log1p(mpc(-1, 0)) == mpc(-inf, 0)
+    assert log1p(mpc(1, inf)) == mpc(inf, pi/2)
+    r = log1p(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert log1p(mpc(-inf, 1)) == mpc(inf, pi)
+    assert log1p(mpc(inf, 1)) == mpc(inf, 0)
+    r = log1p(mpc(-inf, nan))
+    assert r.real == inf and isnan(r.imag)
+    r = log1p(mpc(inf, nan))
+    assert r.real == inf and isnan(r.imag)
+    r = log1p(mpc(nan, 0))
+    assert isnan(r.real) and isnan(r.imag)
+    r = log1p(mpc(nan, inf))
+    assert r.real == inf and isnan(r.imag)
+    r = log1p(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
 
 def test_powm1():
     assert powm1(2,3) == 7

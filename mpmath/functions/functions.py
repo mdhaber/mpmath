@@ -212,7 +212,7 @@ def log1p(ctx, x):
     cmag = ctx.mag(c)
     a, b = c.real, c.imag
     wp = ctx.prec
-    if cmag >= -wp:
+    if cmag >= -wp or ctx.isnan(cmag):
         # |c| isn't very small. We call log(1+c) instead, but
         # are careful about the precision used by the add. The
         # real part of the result is log(|c+1|). That's
