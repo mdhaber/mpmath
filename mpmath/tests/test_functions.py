@@ -279,6 +279,8 @@ def test_exp():
     # Complex special cases:
     # https://en.cppreference.com/c/numeric/complex/cexp
     assert exp(0j) == 1
+    r = exp(mpc(0, nan))
+    assert isnan(r.real) and isnan(r.imag)
     r = exp(mpc(1, inf))
     assert isnan(r.real) and isnan(r.imag)
     r = exp(mpc(1, -inf))
@@ -304,6 +306,10 @@ def test_exp():
     r = exp(mpc(nan, 0))
     assert isnan(r.real) and r.imag == 0
     r = exp(mpc(nan, 1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, -inf))
     assert isnan(r.real) and isnan(r.imag)
     r = exp(mpc(nan, nan))
     assert isnan(r.real) and isnan(r.imag)
