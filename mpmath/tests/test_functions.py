@@ -281,16 +281,22 @@ def test_exp():
     assert exp(0j) == 1
     r = exp(mpc(1, inf))
     assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(1, -inf))
+    assert isnan(r.real) and isnan(r.imag)
     r = exp(mpc(1, nan))
     assert isnan(r.real) and isnan(r.imag)
     assert exp(mpc(inf, 0)) == mpc(inf, 0)
+    assert exp(mpc(-inf, 0)) == 0
     assert exp(mpc(-inf, 1)) == 0
     assert exp(mpc(inf, pi/4)) == mpc(inf, inf)
     assert exp(mpc(inf, 3*pi/4)) == mpc(-inf, inf)
     assert exp(mpc(inf, -3*pi/4)) == mpc(-inf, -inf)
     assert exp(mpc(inf, -pi/4)) == mpc(inf, -inf)
     assert exp(mpc(-inf, inf)) == 0
+    assert exp(mpc(-inf, -inf)) == 0
     r = exp(mpc(inf, inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = exp(mpc(inf, -inf))
     assert abs(r.real) == inf and isnan(r.imag)
     assert exp(mpc(-inf, nan)) == 0
     r = exp(mpc(inf, nan))
@@ -1204,16 +1210,22 @@ def test_expm1():
     assert expm1(0j) == 0
     r = expm1(mpc(1, inf))
     assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(1, -inf))
+    assert isnan(r.real) and isnan(r.imag)
     r = expm1(mpc(1, nan))
     assert isnan(r.real) and isnan(r.imag)
     assert expm1(mpc(inf, 0)) == mpc(inf, 0)
+    assert expm1(mpc(-inf, 0)) == -1
     assert expm1(mpc(-inf, 1)) == -1
     assert expm1(mpc(inf, pi/4)) == mpc(inf, inf)
     assert expm1(mpc(inf, 3*pi/4)) == mpc(-inf, inf)
     assert expm1(mpc(inf, -3*pi/4)) == mpc(-inf, -inf)
     assert expm1(mpc(inf, -pi/4)) == mpc(inf, -inf)
     assert expm1(mpc(-inf, inf)) == -1
+    assert expm1(mpc(-inf, -inf)) == -1
     r = expm1(mpc(inf, inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = expm1(mpc(inf, -inf))
     assert abs(r.real) == inf and isnan(r.imag)
     assert expm1(mpc(-inf, nan)) == -1
     r = expm1(mpc(inf, nan))
