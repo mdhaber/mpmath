@@ -431,10 +431,7 @@ def mpc_exp(z, prec, rnd=round_down):
     return re, im
 
 def mpc_ln(z, prec, rnd=round_down):
-    a, b = z
-    if (a in _infs and b == fnan) or (a == fnan and b in _infs):
-        return finf, fnan
-    re = mpf_log_hypot(a, b, prec, rnd)
+    re = mpf_log_hypot(z[0], z[1], prec, rnd)
     im = mpc_arg(z, prec, rnd)
     return re, im
 
