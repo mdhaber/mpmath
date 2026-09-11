@@ -614,6 +614,9 @@ def test_atan2():
     assert atan2(1,-1).ae(3*pi/4)
     assert atan2(-1,-1).ae(-3*pi/4)
     assert atan2(-1,1).ae(-pi/4)
+
+    # Special cases:
+    # https://en.cppreference.com/c/numeric/math/atan2
     assert atan2(-1,0).ae(-pi/2)
     assert atan2(1,0).ae(pi/2)
     assert atan2(0,0) == 0
@@ -627,6 +630,10 @@ def test_atan2():
     assert isnan(atan2(nan,3))
     assert isnan(atan2(0,nan))
     assert isnan(atan2(nan,0))
+    assert isnan(atan2(inf,nan))
+    assert isnan(atan2(-inf,nan))
+    assert isnan(atan2(nan,inf))
+    assert isnan(atan2(nan,-inf))
     assert atan2(0,inf) == 0
     assert atan2(0,-inf).ae(pi)
     assert atan2(10,inf) == 0
