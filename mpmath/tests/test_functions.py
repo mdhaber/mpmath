@@ -3,10 +3,7 @@ import inspect
 import math
 import random
 
-import numpy as np
 import pytest
-from hypothesis import given, settings
-from hypothesis import strategies as st
 
 from mpmath import (acos, acosh, acot, acoth, acsc, acsch, arange, arg, asec,
                     asech, asin, asinh, atan, atan2, atanh, catalan, cbrt,
@@ -25,14 +22,6 @@ from mpmath.libmp import (MPZ, ComplexResult, from_int, mpf_gt, mpf_lt,
                           mpf_mul, mpf_pow_int, mpf_sqrt, round_ceiling,
                           round_down, round_nearest, round_up)
 from mpmath.libmp.libmpf import mpf_rand
-
-
-_exp_component_values = [
-    0.0, 1.0, -1.0, math.pi/4, -math.pi/4, 3*math.pi/4, -3*math.pi/4,
-    math.inf, -math.inf, math.nan]
-_exp_components = st.sampled_from(_exp_component_values)
-_exp_imag_components = st.one_of(st.none(), _exp_components)
-_exp_case_count = len(_exp_component_values) * (len(_exp_component_values) + 1)
 
 
 def mpc_ae(a, b, eps=eps):
@@ -287,19 +276,99 @@ def test_exp():
     assert exp(ln2 * 10).ae(1024)
     assert exp(2+2j).ae(cmath.exp(2+2j))
 
+    # Complex special cases:
+    # https://en.cppreference.com/c/numeric/complex/cexp
+    assert exp(0j) == 1
+    r = exp(mpc(0, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(1, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(1, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert exp(mpc(inf, 0)) == mpc(inf, 0)
+    assert exp(mpc(-inf, 0)) == 0
+    assert exp(mpc(-inf, 1)) == 0
+    assert exp(mpc(inf, pi/4)) == mpc(inf, inf)
+    assert exp(mpc(inf, 3*pi/4)) == mpc(-inf, inf)
+    assert exp(mpc(inf, -3*pi/4)) == mpc(-inf, -inf)
+    assert exp(mpc(inf, -pi/4)) == mpc(inf, -inf)
+    assert exp(mpc(-inf, inf)) == 0
+    assert exp(mpc(-inf, -inf)) == 0
+    r = exp(mpc(inf, inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = exp(mpc(inf, -inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    assert exp(mpc(-inf, nan)) == 0
+    r = exp(mpc(inf, nan))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = exp(mpc(nan, 0))
+    assert isnan(r.real) and r.imag == 0
+    r = exp(mpc(nan, 1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
 
-@settings(max_examples=_exp_case_count + 1)
-@given(real=_exp_components, imag=_exp_imag_components)
-def test_exp_special_cases(real, imag):
-    if imag is None:
-        actual = float(exp(real))
-        expected = np.exp(float(real))
-    else:
-        actual = complex(exp(mpc(real, imag)))
-        with np.errstate(all='ignore'):
-            expected = np.exp(complex(real, imag))
-    np.testing.assert_allclose(actual, expected)
-
+    # All combinations of finite and special representative values.
+    assert exp(mpc(0, 0)) == 1
+    assert exp(mpc(0, 1)).ae(cmath.exp(1j))
+    assert exp(mpc(0, -1)).ae(cmath.exp(-1j))
+    r = exp(mpc(0, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(0, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(0, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert exp(mpc(1, 0)).ae(cmath.exp(1))
+    assert exp(mpc(1, 1)).ae(cmath.exp(1+1j))
+    assert exp(mpc(1, -1)).ae(cmath.exp(1-1j))
+    r = exp(mpc(1, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(1, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert exp(mpc(-1, 0)).ae(cmath.exp(-1))
+    assert exp(mpc(-1, 1)).ae(cmath.exp(-1+1j))
+    assert exp(mpc(-1, -1)).ae(cmath.exp(-1-1j))
+    r = exp(mpc(-1, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(-1, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(-1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert exp(mpc(inf, 0)) == mpc(inf, 0)
+    assert exp(mpc(inf, 1)) == mpc(inf, inf)
+    assert exp(mpc(inf, -1)) == mpc(inf, -inf)
+    r = exp(mpc(inf, inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = exp(mpc(inf, -inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = exp(mpc(inf, nan))
+    assert abs(r.real) == inf and isnan(r.imag)
+    assert exp(mpc(-inf, 0)) == 0
+    assert exp(mpc(-inf, 1)) == 0
+    assert exp(mpc(-inf, -1)) == 0
+    assert exp(mpc(-inf, inf)) == 0
+    assert exp(mpc(-inf, -inf)) == 0
+    assert exp(mpc(-inf, nan)) == 0
+    r = exp(mpc(nan, 0))
+    assert isnan(r.real) and r.imag == 0
+    r = exp(mpc(nan, 1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, -1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = exp(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
 
 def test_issue_73():
     mp.dps = 512
@@ -1192,19 +1261,99 @@ def test_expm1():
     assert expm1(1e-50).ae(1e-50)
     assert (expm1(1e-10)*1e10).ae(1.00000000005)
 
+    # Other real special cases:
+    # https://en.cppreference.com/c/numeric/math/expm1
+    assert isnan(expm1(nan))
+    assert expm1(-inf) == -1
 
-@settings(max_examples=_exp_case_count + 1)
-@given(real=_exp_components, imag=_exp_imag_components)
-def test_expm1_special_cases(real, imag):
-    if imag is None:
-        actual = float(expm1(real))
-        expected = np.exp(float(real)) - 1
-    else:
-        actual = complex(expm1(mpc(real, imag)))
-        with np.errstate(all='ignore'):
-            expected = np.exp(complex(real, imag)) - 1
-    np.testing.assert_allclose(actual, expected)
+    # Complex special cases:
+    # https://en.cppreference.com/c/numeric/complex/cexp
+    # The expm1 results are the exp results minus 1.
+    assert expm1(0j) == 0
+    r = expm1(mpc(1, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(1, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert expm1(mpc(inf, 0)) == mpc(inf, 0)
+    assert expm1(mpc(-inf, 0)) == -1
+    assert expm1(mpc(-inf, 1)) == -1
+    assert expm1(mpc(inf, pi/4)) == mpc(inf, inf)
+    assert expm1(mpc(inf, 3*pi/4)) == mpc(-inf, inf)
+    assert expm1(mpc(inf, -3*pi/4)) == mpc(-inf, -inf)
+    assert expm1(mpc(inf, -pi/4)) == mpc(inf, -inf)
+    assert expm1(mpc(-inf, inf)) == -1
+    assert expm1(mpc(-inf, -inf)) == -1
+    r = expm1(mpc(inf, inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = expm1(mpc(inf, -inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    assert expm1(mpc(-inf, nan)) == -1
+    r = expm1(mpc(inf, nan))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = expm1(mpc(nan, 0))
+    assert isnan(r.real) and r.imag == 0
+    r = expm1(mpc(nan, 1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
 
+    # All combinations of finite and special representative values.
+    assert expm1(mpc(0, 0)) == 0
+    assert expm1(mpc(0, 1)).ae(cmath.exp(1j)-1)
+    assert expm1(mpc(0, -1)).ae(cmath.exp(-1j)-1)
+    r = expm1(mpc(0, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(0, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(0, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert expm1(mpc(1, 0)).ae(cmath.exp(1)-1)
+    assert expm1(mpc(1, 1)).ae(cmath.exp(1+1j)-1)
+    assert expm1(mpc(1, -1)).ae(cmath.exp(1-1j)-1)
+    r = expm1(mpc(1, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(1, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert expm1(mpc(-1, 0)).ae(cmath.exp(-1)-1)
+    assert expm1(mpc(-1, 1)).ae(cmath.exp(-1+1j)-1)
+    assert expm1(mpc(-1, -1)).ae(cmath.exp(-1-1j)-1)
+    r = expm1(mpc(-1, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(-1, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(-1, nan))
+    assert isnan(r.real) and isnan(r.imag)
+    assert expm1(mpc(inf, 0)) == mpc(inf, 0)
+    assert expm1(mpc(inf, 1)) == mpc(inf, inf)
+    assert expm1(mpc(inf, -1)) == mpc(inf, -inf)
+    r = expm1(mpc(inf, inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = expm1(mpc(inf, -inf))
+    assert abs(r.real) == inf and isnan(r.imag)
+    r = expm1(mpc(inf, nan))
+    assert abs(r.real) == inf and isnan(r.imag)
+    assert expm1(mpc(-inf, 0)) == -1
+    assert expm1(mpc(-inf, 1)) == -1
+    assert expm1(mpc(-inf, -1)) == -1
+    assert expm1(mpc(-inf, inf)) == -1
+    assert expm1(mpc(-inf, -inf)) == -1
+    assert expm1(mpc(-inf, nan)) == -1
+    r = expm1(mpc(nan, 0))
+    assert isnan(r.real) and r.imag == 0
+    r = expm1(mpc(nan, 1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(nan, -1))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(nan, inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(nan, -inf))
+    assert isnan(r.real) and isnan(r.imag)
+    r = expm1(mpc(nan, nan))
+    assert isnan(r.real) and isnan(r.imag)
 
 def test_log1p():
     assert log1p(0) == 0
