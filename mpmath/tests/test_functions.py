@@ -264,6 +264,7 @@ def test_exact_cbrt():
         assert cbrt(mpf(A*A*A)) == A
 
 def test_exp():
+    # other special real cases are in test_special.py::test_functions_special()
     assert exp(0) == 1
     assert exp(10000).ae(mpf('8.8068182256629215873e4342'))
     assert exp(-10000).ae(mpf('1.1354838653147360985e-4343'))
